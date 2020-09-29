@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Blex.f10-solutions</id>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <title>Blex</title>
     <authors>f10-solutions</authors>
     <owners>f10-solutions</owners>
@@ -30,12 +30,14 @@
   </metadata>
   <files>
     <!-- Cross-platform reference assemblies -->
-    <file src="Blex\bin\Release\netstandard2.0\Blex.dll" target="lib\netstandard2.0\Plugin.Blex.dll" />
+    <file src="Blex\bin\Release\netstandard2.0\Blex.dll" target="lib\netstandard2.0\Blex.dll" />
 
     <!-- iOS reference assemblies -->
-    <file src="Blex.Touch\bin\Release\Blex.Touch.dll" target="lib\Xamarin.iOS10\Plugin.Blex.dll" />
+    <file src="Blex\bin\Release\netstandard2.0\Blex.dll" target="lib\Xamarin.iOS10\Blex.dll" />
+    <file src="Blex.Touch\bin\Release\Blex.Touch.dll" target="lib\Xamarin.iOS10\Blex.Touch.dll" />
 
     <!-- Android reference assemblies -->
-    <file src="Blex.Droid\bin\Release\Blex.Droid.dll" target="lib\MonoAndroid10\Plugin.Blex.dll" />
+    <file src="Blex\bin\Release\netstandard2.0\Blex.dll" target="lib\MonoAndroid10\Blex.dll" />
+    <file src="Blex.Droid\bin\Release\Blex.Droid.dll" target="lib\MonoAndroid10\Blex.Droid.dll" />
   </files>
 </package>
