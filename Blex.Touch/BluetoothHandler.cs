@@ -17,6 +17,8 @@ namespace Blex.Touch
         private readonly Dictionary<string, IList<Characteristicupdated>> _subscriber =
             new Dictionary<string, IList<Characteristicupdated>>();
 
+        public event EventHandler<string> LogReceived;
+
         public BluetoothHandler()
         {
             ConnectionHelper = new ConnectionHelper();
@@ -30,15 +32,17 @@ namespace Blex.Touch
         private readonly object _lock = new object();
 
         public IEncryptionHandler EncryptionHandler { get; set; }
-
+        
         public Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult> filter,
             string[] uuidsRequiered)
         {
+            LogReceived?.Invoke(this, "scanning");
             return ConnectionHelper.Scan(limit, (int) maxDuration.TotalMilliseconds, filter, uuidsRequiered);
         }
 
         public Task<IEnumerable<IScanResult>> Scan(int limit, int maxDuration, int RSSILimit, string[] uuidsRequiered)
         {
+            LogReceived?.Invoke(this, "scanning");
             return Scan(limit, TimeSpan.FromMilliseconds(maxDuration), t => t.RSSI >= RSSILimit, uuidsRequiered);
         }
 
@@ -46,6 +50,8 @@ namespace Blex.Touch
 
         public async Task Connect(IScanResult scanResult)
         {
+            LogReceived?.Invoke(this, "connect");
+
             _subscribedCharacteristic.Clear();
             _subscriber.Clear();
             var isConnected = await ConnectionHelper.Connect((CBPeripheral) scanResult.NativeDevice);
@@ -54,6 +60,8 @@ namespace Blex.Touch
 
         public Task Disconnect()
         {
+            LogReceived?.Invoke(this, "disconnecting");
+
             return ConnectionHelper.Disconnect(ConnectionHelper.Peripheral);
         }
 
@@ -61,6 +69,8 @@ namespace Blex.Touch
 
         private void OnConnectionStateChanged(object sender, bool e)
         {
+            LogReceived?.Invoke(this, "connectionStatus Changed");
+
             ConnectionStatusChanged?.Invoke(this, e);
         }
 
@@ -71,6 +81,8 @@ namespace Blex.Touch
 
         public Task WriteValue(byte[] value, string characteristic)
         {
+            Log($"writing : {BitConverter.ToString(value)}");
+            
             var encrypted = EncryptionHandler != null
                 ? EncryptionHandler.EncryptMessage(value, characteristic)
                 : value;
@@ -87,10 +99,15 @@ namespace Blex.Touch
 
         public async Task<byte[]> ReadData(string characteristic)
         {
+
             var data = await PeripheralManager.Read(characteristic);
+            Log("ReadData received:  " + BitConverter.ToString(data).Replace("-", ""));
+
             var decrypted = EncryptionHandler != null
                 ? EncryptionHandler.DecryptMessage(data, characteristic)
                 : data;
+            Log("ReadData received (decrypted):  " + BitConverter.ToString(decrypted).Replace("-", ""));
+
             _archivedData[characteristic] = decrypted;
             return decrypted;
         }
@@ -142,9 +159,13 @@ namespace Blex.Touch
             {
                 var uuid = e.UUID.Uuid.ToLower();
                 var data = e.Value.ToArray();
+                Log("Data received:  " + BitConverter.ToString(data).Replace("-", ""));
+
                 var decrypted = EncryptionHandler != null
                     ? EncryptionHandler.DecryptMessage(data, uuid)
                     : data;
+                Log("Data received (decrypted) :  " + BitConverter.ToString(decrypted).Replace("-", ""));
+
                 _archivedData[uuid] = decrypted;
                 var subscribers = _subscriber.GetValueOrDefault(uuid, new List<Characteristicupdated>()).ToList();
                 foreach (var characteristicupdated in subscribers) characteristicupdated.Invoke(uuid);
@@ -152,5 +173,10 @@ namespace Blex.Touch
         }
 
         #endregion
+        
+        private void Log(string s)
+        {
+            LogReceived?.Invoke(this, s);
+        }
     }
 }

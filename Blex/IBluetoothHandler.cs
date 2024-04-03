@@ -8,7 +8,12 @@ namespace Blex
 
     public interface IBluetoothHandler
     {
-        
+
+        /// <summary>
+        /// Implement this delegate if you choose to receive log from this library
+        /// </summary>
+        event EventHandler<string> LogReceived;
+            
         /// <summary>
         /// This method scan for BLE device
         /// </summary>
@@ -22,7 +27,7 @@ namespace Blex
 
         [Obsolete("use Scan(int, int, Predicate<IScanResult>, string[]) instead", false)]
         Task<IEnumerable<IScanResult>> Scan(int limit, int maxDuration, int RSSILimit, string[] uuidsRequiered);
-
+        
         #region Connection
 
         /// <summary>

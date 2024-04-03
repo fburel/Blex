@@ -16,6 +16,9 @@ namespace Blex.Droid
     public class BluetoothHandler : IBluetoothHandler
     {
         
+        public event EventHandler<string> LogReceived;
+
+        
         private const double ConnectionTimeOutSeconds = 30;
 
         
@@ -28,9 +31,7 @@ namespace Blex.Droid
 
         private readonly Dictionary<string, IList<Characteristicupdated>> _subscriber =
             new Dictionary<string, IList<Characteristicupdated>>();
-
-//        private ILogger _logger;
-
+        
         public BluetoothHandler(Context context)
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
@@ -44,31 +45,25 @@ namespace Blex.Droid
             _peripheralMnager.CharacteristicUpdated += OncharacteristicUpdated;
             _peripheralMnager.ConnectionStateChanged += OnConnectionStateChanged;
         }
-
-//        public ILogger Logger
-//        {
-//            get => _logger;
-//            set
-//            {
-//                _helper.Logger = value;
-//                _peripheralMnager.Logger = value;
-//                _logger = value;
-//            }
-//        }
-
+        
         public IEncryptionHandler EncryptionHandler { get; set; }
 
-        public Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult> filter,
+
+        public async Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult> filter,
             string[] uuidsRequiered)
         { 
-            return _helper.Scan(limit, (int) maxDuration.TotalMilliseconds, filter ?? (x => true), uuidsRequiered);
+            Log($"scanning");
+            
+            var results = await _helper.Scan(limit, (int) maxDuration.TotalMilliseconds, filter ?? (x => true), uuidsRequiered);
+            
+            return results;
         }
 
         public async Task<IEnumerable<IScanResult>> Scan(int limit, int maxDuration, int RSSILimit, string[] uuidsRequiered)
         { 
-            var results = (await _helper.Scan(limit, maxDuration, s => s.RSSI >= RSSILimit, uuidsRequiered)).ToList();
+            Log($"scanning");
 
-            Log($"{results.Count()} devices found");
+            var results = await _helper.Scan(limit, maxDuration, s => s.RSSI >= RSSILimit, uuidsRequiered);
             
             return results;
         }
@@ -81,6 +76,8 @@ namespace Blex.Droid
 
         public Task Connect(IScanResult nativeDevice)
         {
+            Log($"connecting");
+
             var device = nativeDevice.NativeDevice as BluetoothDevice;
 
             return _peripheralMnager.Connect(device, ConnectionTimeOutSeconds);
@@ -88,6 +85,7 @@ namespace Blex.Droid
 
         public Task Disconnect()
         {
+            Log($"disconnecting");
             return _peripheralMnager.Disconnect().ContinueWith(t => true);
         }
 
@@ -120,7 +118,7 @@ namespace Blex.Droid
 
         public Task WriteValue(byte[] value, string characteristic)
         {
-//            Logger?.Post($"unencrypted data : {BitConverter.ToString(value)}");
+            Log($"writing : {BitConverter.ToString(value)}");
 
             var encrypted = EncryptionHandler != null
                 ? EncryptionHandler.EncryptMessage(value, characteristic)
@@ -207,11 +205,14 @@ namespace Blex.Droid
             {
                 var uuid = characteristic.Uuid.ToString().ToLower();
                 var data = characteristic.GetValue();
-                Log("Characteristic updated :  " + BitConverter.ToString(data).Replace("-", ""));
+                
+                Log("Data received:  " + BitConverter.ToString(data).Replace("-", ""));
+                
                 var decrypted = EncryptionHandler != null
                     ? EncryptionHandler.DecryptMessage(data, uuid)
                     : data;
-                Log("decrypted characteristic value :  " + BitConverter.ToString(decrypted).Replace("-", ""));
+                Log("Data received (decrypted) :  " + BitConverter.ToString(decrypted).Replace("-", ""));
+                
                 _archivedData[uuid] = decrypted;
                 var subscribers =
                     new List<Characteristicupdated>(_subscriber.GetValueOrDefault(uuid,
@@ -220,11 +221,13 @@ namespace Blex.Droid
             }
         }
 
-        private static void Log(string txt)
+        void Log(string txt)
         {
 #if DEBUG
             Trace.WriteLine(txt);
 #endif
+            LogReceived?.Invoke(this, txt);
+            
         }
 
         #endregion
