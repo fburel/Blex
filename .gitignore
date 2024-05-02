@@ -189,3 +189,4 @@ FakesAssemblies/
 *.userprefs
 .idea
 .vs
+.vscode
