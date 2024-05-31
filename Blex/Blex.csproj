@@ -4,6 +4,17 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Blex.f10-solutions</PackageId>
+        <Version>1.2.0</Version>
+        <Title>Blex</Title>
+        <Authors>f10-solutions</Authors>
+        <Description>Blex is a cross platform BLE library for Xamarin.</Description>
+        <Copyright>Copyright 2020</Copyright>
+        <PackageProjectUrl>https://github.com/fburel/Blex</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/fburel/Blex</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>bluetooth low energy ble iot xamarin</PackageTags>
     </PropertyGroup>
 
 </Project>

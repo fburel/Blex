@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Blex.f10-solutions</id>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <title>Blex</title>
     <authors>f10-solutions</authors>
     <owners>f10-solutions</owners>
@@ -15,29 +15,29 @@
     <projectUrl>https://github.com/fburel/Blex</projectUrl>
     <repository type="git" url="https://github.com/fburel/Blex.git" branch="master" commit="7ef6daec295d60a32d330b61c8440b668fa8d64d" />
     <license type="expression">MIT</license>
-
     <dependencies>
-        <group targetFramework=".NETStandard2.0">
+        <group targetFramework="net8.0">
+            <!--x dependencies go here-->
+        </group>
+        <group targetFramework="net8.0-ios17.0">
             <!--MonoAndroid dependencies go here-->
         </group>
-        <group targetFramework="MonoAndroid">
+        <group targetFramework="net8.0-android26.0">
             <!--MonoAndroid dependencies go here-->
-        </group>
-        <group targetFramework="Xamarin.iOS10">
-            <!--Xamarin.iOS10 dependencies go here-->
         </group>
     </dependencies>
+
   </metadata>
   <files>
-    <!-- Cross-platform reference assemblies -->
-    <file src="Blex\bin\Release\netstandard2.0\Blex.dll" target="lib\netstandard2.0\Blex.dll" />
+    <!-- cross platform assemblies -->
+    <file src="Blex\bin\Release\net8.0\Blex.dll" target="lib\net8.0" />
 
     <!-- iOS reference assemblies -->
-    <file src="Blex\bin\Release\netstandard2.0\Blex.dll" target="lib\Xamarin.iOS10\Blex.dll" />
-    <file src="Blex.Touch\bin\Release\Blex.Touch.dll" target="lib\Xamarin.iOS10\Blex.Touch.dll" />
+    <file src="Blex.Touch\bin\Release\net8.0-ios\Blex.dll" target="lib\net8.0-ios17.0" />
+    <file src="Blex.Touch\bin\Release\net8.0-ios\Blex.Touch.dll" target="lib\net8.0-ios17.0" />
 
     <!-- Android reference assemblies -->
-    <file src="Blex\bin\Release\netstandard2.0\Blex.dll" target="lib\MonoAndroid10\Blex.dll" />
-    <file src="Blex.Droid\bin\Release\Blex.Droid.dll" target="lib\MonoAndroid10\Blex.Droid.dll" />
+    <file src="Blex.Droid\bin\Release\net8.0-android\Blex.dll" target="lib\net8.0-android26.0" />
+    <file src="Blex.Droid\bin\Release\net8.0-android\Blex.Droid.dll" target="lib\net8.0-android26.0" />
   </files>
 </package>
