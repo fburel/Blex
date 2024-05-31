@@ -1,37 +1,38 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using CoreBluetooth;
-using Foundation;
+
 
 namespace Blex.Touch.Ble
 {
     internal class PeripheralManager : CBPeripheralDelegate
     {
-        private readonly Dictionary<string, CBCharacteristic> _discoveredCharacteristics =
-            new Dictionary<string, CBCharacteristic>();
+        private readonly Dictionary<string, CBCharacteristic> _discoveredCharacteristics;
 
-        private TaskCompletionSource<bool> _discoverGATT;
-        private TaskCompletionSource<byte[]> _readCharPromise;
-        private readonly IList<string> _subscribees = new List<string>();
-        private TaskCompletionSource<bool> _writeCharPromise;
+        private TaskCompletionSource<bool>? _discoverGATT;
+        private TaskCompletionSource<byte[]>? _readCharPromise;
+        private readonly IList<string> _subscribees;
+        private TaskCompletionSource<bool>? _writeCharPromise;
 
 
         private CBPeripheral Peripheral { get; set; }
         public event EventHandler<CBCharacteristic> CharacteristicUpdated;
 
+        private int _serviceCount;
 
-        public void Reset(CBPeripheral peripheral)
+        public PeripheralManager(CBPeripheral peripheral)
         {
             _discoverGATT = null;
             _readCharPromise = null;
             _writeCharPromise = null;
-
-            _discoveredCharacteristics.Clear();
-            _subscribees.Clear();
-
+            _serviceCount = 0;
+            _discoveredCharacteristics = new Dictionary<string, CBCharacteristic>();
+            _subscribees = new Collection<string>();
+            
             Peripheral = peripheral;
-            peripheral.Delegate = this;
+            Peripheral.DiscoveredService += DiscoveredService;
+            Peripheral.DiscoveredCharacteristics += DiscoveredCharacteristics;
+            Peripheral.WroteCharacteristicValue += WroteCharacteristicValue;
+            Peripheral.UpdatedCharacterteristicValue += UpdatedCharacterteristicValue;
         }
 
         public Task DiscoverGATT()
@@ -46,7 +47,7 @@ namespace Blex.Touch.Ble
         {
             _writeCharPromise = new TaskCompletionSource<bool>();
 
-            var charac = _discoveredCharacteristics.GetValueOrDefault(characteristic.ToLower(), null);
+            var charac = _discoveredCharacteristics!.GetValueOrDefault(characteristic.ToLower(), null);
 
             Peripheral.WriteValue(NSData.FromArray(encrypted), charac, CBCharacteristicWriteType.WithResponse);
 
@@ -56,9 +57,9 @@ namespace Blex.Touch.Ble
         public Task<byte[]> Read(string characteristic)
         {
             _readCharPromise = new TaskCompletionSource<byte[]>();
-            var charac = _discoveredCharacteristics.GetValueOrDefault(characteristic.ToLower(), null);
+            var charac = _discoveredCharacteristics!.GetValueOrDefault(characteristic.ToLower(), null);
             if (charac == null) _readCharPromise.TrySetException(new Exception("Charcteristic not found"));
-            Peripheral.ReadValue(charac);
+            else Peripheral.ReadValue(charac);
             return _readCharPromise.Task;
         }
 
@@ -67,73 +68,81 @@ namespace Blex.Touch.Ble
             if (_subscribees.Contains(characteristic.ToLower())) return;
 
             _subscribees.Add(characteristic.ToLower());
-            var charac = _discoveredCharacteristics.GetValueOrDefault(characteristic.ToLower(), null);
+            var charac = _discoveredCharacteristics!.GetValueOrDefault(characteristic.ToLower(), null);
 
             Peripheral.SetNotifyValue(true, charac);
         }
 
+        internal bool HasCharacterisitic(string characteristic)
+        {
+            return _discoveredCharacteristics!.GetValueOrDefault(characteristic.ToLower(), null) != null;
+        }
+        
         #region CBPeripheralDelegate
 
-        private int serviceCount;
 
-        public override void DiscoveredService(CBPeripheral peripheral, NSError error)
+        private void DiscoveredService(object? sender, NSErrorEventArgs e)
         {
-            serviceCount = Peripheral.Services.Length;
+            if (e.Error != null)
+            {
+                return;
+            }
+            _serviceCount = Peripheral.Services!.Length;
 
             foreach (var service in Peripheral.Services) Peripheral.DiscoverCharacteristics(service);
         }
-
-        public override void DiscoveredCharacteristic(CBPeripheral peripheral, CBService service, NSError error)
+        
+        private void DiscoveredCharacteristics(object? sender, CBServiceEventArgs e)
         {
-            foreach (var characteristic in service.Characteristics)
+            if (e.Error != null)
+            {
+                return;
+            }
+            foreach (var characteristic in e.Service.Characteristics!)
             {
                 var charUuid = characteristic.UUID;
                 _discoveredCharacteristics.Add(charUuid.ToString().ToLower(), characteristic);
             }
 
-            serviceCount--;
-            if (serviceCount == 0 && _discoverGATT != null)
+            _serviceCount--;
+            if (_serviceCount == 0 && _discoverGATT != null)
             {
                 _discoverGATT.SetResult(true);
                 _discoverGATT = null;
             }
         }
-
-        internal bool HasCharacterisitic(string characteristic)
-        {
-            return _discoveredCharacteristics.GetValueOrDefault(characteristic.ToLower(), null) != null;
-        }
-
-        public override void WroteCharacteristicValue(CBPeripheral peripheral, CBCharacteristic characteristic,
-            NSError error)
+        
+        private void WroteCharacteristicValue(object? sender, CBCharacteristicEventArgs e)
         {
             var compl = _writeCharPromise;
             if (compl == null) return;
             _writeCharPromise = null;
-
-            if (error == null)
+        
+            if (e.Error == null)
                 compl.SetResult(true);
             else
-                compl.SetException(new NSErrorException(error));
+                compl.SetException(new NSErrorException(e.Error));
         }
-
-        public override void UpdatedCharacterteristicValue(CBPeripheral peripheral, CBCharacteristic characteristic,
-            NSError error)
+        
+        private void UpdatedCharacterteristicValue(object? sender, CBCharacteristicEventArgs e)
         {
             if (_readCharPromise != null)
             {
                 var compl = _readCharPromise;
                 _readCharPromise = null;
-
-                if (error == null)
-                    compl.SetResult(characteristic.Value.ToArray());
+        
+                if (e.Error == null)
+                    compl.SetResult(e.Characteristic.Value!.ToArray());
                 else
-                    compl?.SetException(new NSErrorException(error));
+                    compl?.SetException(new NSErrorException(e.Error));
             }
-
-            if (_subscribees.Contains(characteristic.UUID.Uuid.ToLower()))
-                CharacteristicUpdated?.Invoke(this, characteristic);
+        
+            if (_subscribees.Contains(e.Characteristic.UUID.Uuid.ToLower()))
+                CharacteristicUpdated?.Invoke(this, e.Characteristic);
         }
+        
+
+
 
         #endregion
     }

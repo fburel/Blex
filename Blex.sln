@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blex.Touch", "Blex.Touch\Blex.Touch.csproj", "{9E4176E2-EF1B-40B8-9FD9-7CCB4F110950}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blex", "Blex\Blex.csproj", "{891682B5-B51C-4610-9093-E6045E3B3907}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blex.Droid", "Blex.Droid\Blex.Droid.csproj", "{D65D7CD4-C8D7-4C70-830C-3E7FC6CFF807}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blex.Touch", "Blex.Touch\Blex.Touch.csproj", "{E07AA928-3D03-43E4-BF6E-496C4703A685}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blex", "Blex\Blex.csproj", "{A08F60FE-7A09-4170-A3CC-40160101FBB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blex.Droid", "Blex.Droid\Blex.Droid.csproj", "{158FC596-81D1-4915-80E8-021C6C874FC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,23 +15,25 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9E4176E2-EF1B-40B8-9FD9-7CCB4F110950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E4176E2-EF1B-40B8-9FD9-7CCB4F110950}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E4176E2-EF1B-40B8-9FD9-7CCB4F110950}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E4176E2-EF1B-40B8-9FD9-7CCB4F110950}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D65D7CD4-C8D7-4C70-830C-3E7FC6CFF807}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D65D7CD4-C8D7-4C70-830C-3E7FC6CFF807}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D65D7CD4-C8D7-4C70-830C-3E7FC6CFF807}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D65D7CD4-C8D7-4C70-830C-3E7FC6CFF807}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A08F60FE-7A09-4170-A3CC-40160101FBB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A08F60FE-7A09-4170-A3CC-40160101FBB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A08F60FE-7A09-4170-A3CC-40160101FBB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A08F60FE-7A09-4170-A3CC-40160101FBB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{891682B5-B51C-4610-9093-E6045E3B3907}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{891682B5-B51C-4610-9093-E6045E3B3907}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{891682B5-B51C-4610-9093-E6045E3B3907}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{891682B5-B51C-4610-9093-E6045E3B3907}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E07AA928-3D03-43E4-BF6E-496C4703A685}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E07AA928-3D03-43E4-BF6E-496C4703A685}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E07AA928-3D03-43E4-BF6E-496C4703A685}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E07AA928-3D03-43E4-BF6E-496C4703A685}.Release|Any CPU.Build.0 = Release|Any CPU
+		{158FC596-81D1-4915-80E8-021C6C874FC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{158FC596-81D1-4915-80E8-021C6C874FC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{158FC596-81D1-4915-80E8-021C6C874FC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{158FC596-81D1-4915-80E8-021C6C874FC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0AD2ADAB-D45A-40ED-B947-2DAB13CCCA36}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

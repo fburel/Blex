@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>Blex.f10-solutions</id>
-    <version>1.0.3</version>
+    <version>1.2.0</version>
     <title>Blex</title>
     <authors>f10-solutions</authors>
     <owners>f10-solutions</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Blex is a cross platform BLE library for Xamarin.</description>
     <summary>Blex brings the native Bluetooth Low Energy (a.k.a Bluetooth 4.0) capacities of Android and iOS into the Xamarin cross platform world.</summary>
-    <releaseNotes>Add logs and log forwarding capabilities</releaseNotes>
+    <releaseNotes>update to dotnet 8</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <tags>bluetooth low energy ble iot</tags>
     <projectUrl>https://github.com/fburel/Blex</projectUrl>

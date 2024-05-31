@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Blex.Touch.Ble;
 using CoreBluetooth;
 
@@ -12,7 +8,17 @@ namespace Blex.Touch
         private readonly Dictionary<string, byte[]> _archivedData = new Dictionary<string, byte[]>();
         private readonly IList<string> _subscribedCharacteristic = new List<string>();
         private readonly ConnectionHelper ConnectionHelper;
-        private readonly PeripheralManager PeripheralManager;
+
+        private PeripheralManager _peripheralManager;
+        private PeripheralManager PeripheralManager
+        {
+            get => _peripheralManager;
+            set
+            {
+                _peripheralManager = value;
+                _peripheralManager.CharacteristicUpdated += OnNotificationReceived;
+            }
+        }
 
         private readonly Dictionary<string, IList<Characteristicupdated>> _subscriber =
             new Dictionary<string, IList<Characteristicupdated>>();
@@ -23,8 +29,7 @@ namespace Blex.Touch
         {
             ConnectionHelper = new ConnectionHelper();
             ConnectionHelper.ConnectionStateChanged += OnConnectionStateChanged;
-            PeripheralManager = new PeripheralManager();
-            PeripheralManager.CharacteristicUpdated += OnNotificationReceived;
+            
         }
 
         #region IBluetoothHandler
@@ -33,11 +38,11 @@ namespace Blex.Touch
 
         public IEncryptionHandler EncryptionHandler { get; set; }
         
-        public Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult> filter,
-            string[] uuidsRequiered)
+        public Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult>? filter,
+            string[]? uuidsRequiered)
         {
             LogReceived?.Invoke(this, "scanning");
-            return ConnectionHelper.Scan(limit, (int) maxDuration.TotalMilliseconds, filter, uuidsRequiered);
+            return ConnectionHelper.Scan(limit, (int) maxDuration.TotalMilliseconds, filter ?? (x => true), uuidsRequiered);
         }
 
         public Task<IEnumerable<IScanResult>> Scan(int limit, int maxDuration, int RSSILimit, string[] uuidsRequiered)
@@ -55,7 +60,7 @@ namespace Blex.Touch
             _subscribedCharacteristic.Clear();
             _subscriber.Clear();
             var isConnected = await ConnectionHelper.Connect((CBPeripheral) scanResult.NativeDevice);
-            if (isConnected) PeripheralManager.Reset(ConnectionHelper.Peripheral);
+            if (isConnected) PeripheralManager = new PeripheralManager(ConnectionHelper.Peripheral);
         }
 
         public Task Disconnect()

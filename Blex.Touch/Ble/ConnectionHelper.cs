@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CoreBluetooth;
 using CoreFoundation;
-using Foundation;
 
 namespace Blex.Touch.Ble
 {
@@ -34,11 +29,12 @@ namespace Blex.Touch.Ble
 
         public event EventHandler<bool> ConnectionStateChanged;
 
-        public async Task<CBCentralManagerState> PowerOnCentralManagerIfNeeded(CBCentralManager manager)
+        public async Task<CBManagerState> PowerOnCentralManagerIfNeeded(CBCentralManager manager)
         {
-            if (manager.State != CBCentralManagerState.PoweredOn)
+            
+            if (manager.State != CBManagerState.PoweredOn)
             {
-                Manager.ScanForPeripherals(peripheralUuids: null);
+                Manager.ScanForPeripherals(peripheralUuids: null!);
 
                 await Task.Delay(1000);
 

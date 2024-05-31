@@ -22,11 +22,8 @@ namespace Blex
         /// <param name="filter"> A predicate allowing to ignore some result, for example you can specifies a RSSI limit.</param>
         /// <param name="uuidsRequiered"> A list of Gatt Service UIID. Device not advertising those services will be ignored</param>
         /// <returns></returns>
-        Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult> filter,
-            string[] uuidsRequiered);
-
-        [Obsolete("use Scan(int, int, Predicate<IScanResult>, string[]) instead", false)]
-        Task<IEnumerable<IScanResult>> Scan(int limit, int maxDuration, int RSSILimit, string[] uuidsRequiered);
+        Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult>? filter = null,
+            string[]? uuidsRequiered = null);
         
         #region Connection
 

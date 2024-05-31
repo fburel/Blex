@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Android.Bluetooth;
 using Android.Content;
 using Android.OS;
 using Blex.Droid.Ble;
 using Blex.Droid.ScanHelper;
-using IBluetoothHandler = Blex.IBluetoothHandler;
 using Trace = System.Diagnostics.Trace;
 
 
@@ -49,8 +44,8 @@ namespace Blex.Droid
         public IEncryptionHandler EncryptionHandler { get; set; }
 
 
-        public async Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult> filter,
-            string[] uuidsRequiered)
+        public async Task<IEnumerable<IScanResult>> Scan(int limit, TimeSpan maxDuration, Predicate<IScanResult>? filter,
+            string[]? uuidsRequiered)
         { 
             Log($"scanning");
             
