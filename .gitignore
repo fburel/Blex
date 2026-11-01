@@ -190,3 +190,6 @@ FakesAssemblies/
 .idea
 .vs
 .vscode
+
+# local NuGet packages
+nupkgs/
