@@ -15,6 +15,11 @@ namespace Blex.Touch
             get => _peripheralManager;
             set
             {
+                if (_peripheralManager != null)
+                {
+                    _peripheralManager.CharacteristicUpdated -= OnNotificationReceived;
+                    _peripheralManager.Detach();
+                }
                 _peripheralManager = value;
                 _peripheralManager.CharacteristicUpdated += OnNotificationReceived;
             }

@@ -35,6 +35,24 @@ namespace Blex.Touch.Ble
             Peripheral.UpdatedCharacterteristicValue += UpdatedCharacterteristicValue;
         }
 
+        /// <summary>
+        ///     iOS gives back the same CBPeripheral on a reconnection: the previous manager stops listening to it,
+        ///     otherwise its callbacks run along with the new manager's.
+        /// </summary>
+        public void Detach()
+        {
+            Peripheral.DiscoveredService -= DiscoveredService;
+            Peripheral.DiscoveredCharacteristics -= DiscoveredCharacteristics;
+            Peripheral.WroteCharacteristicValue -= WroteCharacteristicValue;
+            Peripheral.UpdatedCharacterteristicValue -= UpdatedCharacterteristicValue;
+            _discoverGATT?.TrySetCanceled();
+            _readCharPromise?.TrySetCanceled();
+            _writeCharPromise?.TrySetCanceled();
+            _discoverGATT = null;
+            _readCharPromise = null;
+            _writeCharPromise = null;
+        }
+
         public Task DiscoverGATT()
         {
             _discoverGATT = new TaskCompletionSource<bool>();
@@ -101,13 +119,13 @@ namespace Blex.Touch.Ble
             foreach (var characteristic in e.Service.Characteristics!)
             {
                 var charUuid = characteristic.UUID;
-                _discoveredCharacteristics.Add(charUuid.ToString().ToLower(), characteristic);
+                _discoveredCharacteristics[charUuid.ToString().ToLower()] = characteristic;
             }
 
             _serviceCount--;
             if (_serviceCount == 0 && _discoverGATT != null)
             {
-                _discoverGATT.SetResult(true);
+                _discoverGATT.TrySetResult(true);
                 _discoverGATT = null;
             }
         }
@@ -119,9 +137,9 @@ namespace Blex.Touch.Ble
             _writeCharPromise = null;
         
             if (e.Error == null)
-                compl.SetResult(true);
+                compl.TrySetResult(true);
             else
-                compl.SetException(new NSErrorException(e.Error));
+                compl.TrySetException(new NSErrorException(e.Error));
         }
         
         private void UpdatedCharacterteristicValue(object? sender, CBCharacteristicEventArgs e)
@@ -132,9 +150,9 @@ namespace Blex.Touch.Ble
                 _readCharPromise = null;
         
                 if (e.Error == null)
-                    compl.SetResult(e.Characteristic.Value!.ToArray());
+                    compl.TrySetResult(e.Characteristic.Value!.ToArray());
                 else
-                    compl?.SetException(new NSErrorException(e.Error));
+                    compl.TrySetException(new NSErrorException(e.Error));
             }
         
             if (_subscribees.Contains(e.Characteristic.UUID.Uuid.ToLower()))

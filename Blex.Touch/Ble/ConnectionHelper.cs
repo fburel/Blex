@@ -72,7 +72,7 @@ namespace Blex.Touch.Ble
 
             Manager.StopScan();
 
-            _scanCompletionSource.SetResult(_devicesFound.AsEnumerable());
+            _scanCompletionSource.TrySetResult(_devicesFound.AsEnumerable());
 
             _scanCompletionSource = null;
         }
@@ -126,7 +126,7 @@ namespace Blex.Touch.Ble
             Peripheral = peripheral;
             if (_connectCompletion != null)
             {
-                _connectCompletion.SetResult(true);
+                _connectCompletion.TrySetResult(true);
                 _connectCompletion = null;
             }
 
@@ -138,7 +138,7 @@ namespace Blex.Touch.Ble
             Peripheral = null;
             if (_disconnectCompletion != null)
             {
-                _disconnectCompletion.SetResult(true);
+                _disconnectCompletion.TrySetResult(true);
                 _disconnectCompletion = null;
             }
 
