@@ -1,0 +1,52 @@
+# Publishes Blex.f10-solutions to nuget.org with Trusted Publishing (no API key).
+# Release: set <version> in Blex.nuspec, commit, then push a tag v<version> (e.g. v1.3.0).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    # Blex.Touch needs the iOS workload, which only builds on macOS.
+    runs-on: macos-26
+    permissions:
+      contents: read
+      id-token: write   # required by NuGet/login to get a short-lived API key
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Check tag matches nuspec version
+        run: |
+          nuspec_version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' Blex.nuspec)
+          if [ "v$nuspec_version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match Blex.nuspec version $nuspec_version"
+            exit 1
+          fi
+
+      - name: Install workloads
+        run: dotnet workload install ios android
+
+      - name: Build
+        run: dotnet build Blex.sln -c Release
+
+      - name: Pack
+        run: dotnet pack Blex/Blex.csproj -c Release --no-build -p:NuspecFile=../Blex.nuspec -p:NuspecBasePath=.. -o nupkgs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: nupkgs/*.nupkg
+
+      - name: NuGet login (Trusted Publishing)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: f10.net
+
+      - name: Push to nuget.org
+        run: dotnet nuget push nupkgs/*.nupkg --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
