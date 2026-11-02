@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>Blex.f10-solutions</id>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
     <title>Blex</title>
     <authors>f10-solutions</authors>
     <owners>f10-solutions</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Blex is a cross platform BLE library for Xamarin.</description>
     <summary>Blex brings the native Bluetooth Low Energy (a.k.a Bluetooth 4.0) capacities of Android and iOS into the Xamarin cross platform world.</summary>
-    <releaseNotes>Fix a crash on iOS when reconnecting to the same peripheral: a duplicate-key ArgumentException was thrown inside didDiscoverCharacteristicsForService and aborted the app. iOS and Android assemblies now target .NET 10 (net10.0-ios, net10.0-android); the cross platform assembly targets net8.0 and net10.0.</releaseNotes>
+    <releaseNotes>iOS: Disconnect now really disconnects the peripheral (CancelPeripheralConnection); it used to report success while the connection stayed open. It completes when iOS confirms the disconnection, or after 5 seconds.</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <tags>bluetooth low energy ble iot</tags>
     <projectUrl>https://github.com/fburel/Blex</projectUrl>

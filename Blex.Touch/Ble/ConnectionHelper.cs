@@ -93,11 +93,16 @@ namespace Blex.Touch.Ble
 
         public Task<bool> Disconnect(CBPeripheral peripheral)
         {
-            if (peripheral != null)
+            if (peripheral == null)
                 return Task.FromResult(true);
-            _disconnectCompletion = new TaskCompletionSource<bool>();
 
-            return _disconnectCompletion.Task;
+            var completion = new TaskCompletionSource<bool>();
+            _disconnectCompletion = completion;
+            Manager.CancelPeripheralConnection(peripheral);
+
+            // iOS may never confirm (peripheral already gone): don't block the caller forever
+            Task.Delay(5000).ContinueWith(_ => completion.TrySetResult(true));
+            return completion.Task;
         }
 
 
